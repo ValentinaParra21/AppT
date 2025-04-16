@@ -1,0 +1,33 @@
+###
+POST  http://localhost:9001/api/Pedidos HTTP/1.1
+Content-Type: application/json
+
+{
+    "fecha": "6/4/2027",
+    "hora": "10pm",
+    "total": "190010",
+    "Descripcion": "Solicitaron un pasta carbonara y bebidas al beer",
+    "CodigoP": "06",
+    "estado": "Inactivo"
+}
+
+###
+GET  http://localhost:9001/api/Pedidos HTTP/1.1
+
+###
+GET  http://localhost:9001/api/Pedidos/673aceb8168af76b6c9fa34e HTTP/1.1
+###
+
+PUT   http://localhost:9001/api/Pedidos/673aceb8168af76b6c9fa34e HTTP/1.1
+Content-Type: application/json
+
+{
+  "fecha": "6/4/2027",
+  "hora": "10pm",
+  "total": 190000,
+  "Descripcion": "Solicitaron un pasta carbonara y bebidas al beer",
+  "CodigoP": 2,
+  "estado": "Activo"
+}
+####
+DELETE http://localhost:9001/api/Pedidos/673e943bf3930d851eb685a0 HTTP/1.1
