@@ -1,0 +1,29 @@
+###
+POST http://localhost:9001/api/cat_productos HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDkxMzlhMzY2ZDI0ZjgwNTYzYmI1NSIsIm5vbWJyZSI6IkRvcGxpbyIsImFwZWxsaWRvcyI6IkdhY2hhIiwicm9sZXMiOlsiTWVzZXJvIl0sImlhdCI6MTczMzg2MjY5NSwiZXhwIjoxNzMzOTA1ODk1fQ.7WzbPh-OpyFKVpYaVvX6dqEuakMvRzltem_gLRd8mpE
+
+{
+  "nombre":"Pollo" 
+}
+
+###
+GET  http://localhost:9001/api/cat_productos HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDkxMzlhMzY2ZDI0ZjgwNTYzYmI1NSIsIm5vbWJyZSI6IkRvcGxpbyIsImFwZWxsaWRvcyI6IkdhY2hhIiwicm9sZXMiOlsiTWVzZXJvIl0sImlhdCI6MTczMzg2MjY5NSwiZXhwIjoxNzMzOTA1ODk1fQ.7WzbPh-OpyFKVpYaVvX6dqEuakMvRzltem_gLRd8mpE
+
+###
+GET  http://localhost:9001/api/cat_producto/673bfa3ac68287d18b1fd282 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDkxMzlhMzY2ZDI0ZjgwNTYzYmI1NSIsIm5vbWJyZSI6IkRvcGxpbyIsImFwZWxsaWRvcyI6IkdhY2hhIiwicm9sZXMiOlsiTWVzZXJvIl0sImlhdCI6MTczMzg2MjY5NSwiZXhwIjoxNzMzOTA1ODk1fQ.7WzbPh-OpyFKVpYaVvX6dqEuakMvRzltem_gLRd8mpE
+###
+
+PUT  http://localhost:9001/api/cat_producto/673bfa3ac68287d18b1fd282 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDkxMzlhMzY2ZDI0ZjgwNTYzYmI1NSIsIm5vbWJyZSI6IkRvcGxpbyIsImFwZWxsaWRvcyI6IkdhY2hhIiwicm9sZXMiOlsiTWVzZXJvIl0sImlhdCI6MTczMzg2MjY5NSwiZXhwIjoxNzMzOTA1ODk1fQ.7WzbPh-OpyFKVpYaVvX6dqEuakMvRzltem_gLRd8mpE
+
+{
+  "nombre": "Pescado"
+}
+
+###
+DELETE http://localhost:9001/api/cat_productos/673bfa3ac68287d18b1fd282 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDkxMzlhMzY2ZDI0ZjgwNTYzYmI1NSIsIm5vbWJyZSI6IkRvcGxpbyIsImFwZWxsaWRvcyI6IkdhY2hhIiwicm9sZXMiOlsiTWVzZXJvIl0sImlhdCI6MTczMzg2MjY5NSwiZXhwIjoxNzMzOTA1ODk1fQ.7WzbPh-OpyFKVpYaVvX6dqEuakMvRzltem_gLRd8mpE

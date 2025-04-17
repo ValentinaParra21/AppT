@@ -1,0 +1,39 @@
+POST http://localhost:9001/api/platillos HTTP/1.1
+Content-Type: application/json
+
+{
+  "nombre": "Sopa de Pollo",
+  "precio": 20000,
+  "descripcion": "Sopa caliente con pollo desmenuzado y verduras frescas",
+  "categoria": "673436ef4d0de991bee239a9"
+}
+
+
+
+###  
+GET http://localhost:9001/api/platillos HTTP/1.1
+   
+###
+GET http://localhost:9001/api/Platillos/672aef61606d919e43917c98 HTTP/1.1
+
+
+###
+PUT http://localhost:9001/api/Platillos/672aef61606d919e43917c98 HTTP/1.1
+Content-Type: application/json
+
+{
+  "nombre": "Pollo a la parrilla",
+  "precio": 18000,
+  "descripcion": "Pollo marinado a la parrilla, acompañado de papas fritas y ensalada.",
+  "estado":"Activo",
+  "categoria": "672ae9d180bcc4b66bcc10a6"
+}
+
+
+
+###
+DELETE http://localhost:9001/api/Platillos/672aef61606d919e43917c98 HTTP/1.1
+
+
+
+

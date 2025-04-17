@@ -1,0 +1,33 @@
+###
+POST  http://localhost:9001/api/usuario HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTNiNGMzYjdjYmQwNjdmZDcwNzE4ZCIsIm5vbWJyZSI6IlBlZHJvIiwiYXBlbGxpZG9zIjoiUGFyYWRhIiwicm9sZXMiOlsiQWRtaW4iXSwiaWF0IjoxNzMzOTM1MDg3LCJleHAiOjE3MzM5NzgyODd9.WyRScNJN6QeI3Qk6z1oyw37cidfrs1Ap_jBvQ3ieEpI
+
+{
+    "nombre": "Pepino",
+    "apellidos": "Pepe", 
+    "correo": "Pepino@gmail.com",
+    "password":"Pepino1$",
+    "rol":"673ac70f2c316c643263290e"
+}
+
+###
+GET  http://localhost:9001/api/usuario HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTNiNGMzYjdjYmQwNjdmZDcwNzE4ZCIsIm5vbWJyZSI6IlBlZHJvIiwiYXBlbGxpZG9zIjoiUGFyYWRhIiwicm9sZXMiOlsiQWRtaW4iXSwiaWF0IjoxNzMzOTM1MDg3LCJleHAiOjE3MzM5NzgyODd9.WyRScNJN6QeI3Qk6z1oyw37cidfrs1Ap_jBvQ3ieEpI
+
+
+###
+GET  http://localhost:9001/api/usuario/673ac853b438af2289cac9b6 HTTP/1.1
+###
+
+PUT   http://localhost:9001/api/usuario/673ac853b438af2289cac9b6 HTTP/1.1
+Content-Type: application/json
+
+{
+    "nombre": "Juan",
+    "apellidos": "Ortegon", 
+    "correo": "Jortegon@gmail.com",
+    "rol":"673ac6ea2c316c643263290c"
+}
+####
+DELETE http://localhost:9001/api/usuario/673abbc42d7657f7ef92129b HTTP/1.1 
