@@ -21,7 +21,7 @@ const FuertesScreen = () => {
     const fetchPlatillos = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
-        const response = await axios.get(`http://192.168.20.23:9001/api/platillos?categoria=${categoriaId}`, {
+        const response = await axios.get(`http://192.168.20.25:9001/api/platillos?categoria=${categoriaId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPlatillos(response.data.data);

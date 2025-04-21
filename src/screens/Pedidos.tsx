@@ -1,444 +1,250 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Alert, ScrollView, ActivityIndicator } from "react-native";
-import axios from "axios";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from "@react-native-picker/picker";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Pressable,
+  StyleSheet,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-const Pedidos = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [platillosDisponibles, setPlatillosDisponibles] = useState<any[]>([]);
-  const [pedido, setPedido] = useState({
-    fecha: format(new Date(), "yyyy-MM-dd"),
-    hora: format(new Date(), "HH:mm"),
-    Descripcion: "",
-    CodigoP: "",
-    estado: "Activo",
-    platillos: [] as Array<{ platillo: string; cantidad: number }>,
-    cliente: {
-      nombre: "Cliente Genérico",
-      identificacion: "0000000000",
-      direccion: "No especificada",
-      telefono: "No especificado",
-      email: "no@especificado.com"
-    }
-  });
-  const [totalPedido, setTotalPedido] = useState(0);
-  const [selectedPlatillo, setSelectedPlatillo] = useState("");
+import { RootStackParamList } from "../types";
+import { useAuth } from "../auth/AuthContext";
 
-  useEffect(() => {
-    const cargarPlatillos = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (!token) {
-          throw new Error("No se encontró token de autenticación");
-        }
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Pedidos">;
 
-        const response = await axios.get("http://192.168.20.23:9001/api/platillos", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setPlatillosDisponibles(response.data.data || []);
-      } catch (error) {
-        setError("Error al cargar los platillos");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    cargarPlatillos();
-  }, []);
+const Pedidos: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const { logout } = useAuth();
+  const [menuVisible, setMenuVisible] = useState(false);
 
-  const calcularTotal = (platillos: any[]) => {
-    return platillos.reduce((total, item) => {
-      const platillo = platillosDisponibles.find(p => p._id === item.platillo);
-      return total + (platillo?.precio || 0) * item.cantidad;
-    }, 0);
+  const toggleMenu = () => setMenuVisible(!menuVisible);
+  const handleLogout = async () => {
+    await logout();
+    toggleMenu();
   };
-
-  const agregarPlatilloAPedido = () => {
-    if (!selectedPlatillo) return;
-
-    const nuevosPlatillos = [
-      ...pedido.platillos,
-      { platillo: selectedPlatillo, cantidad: 1 }
-    ];
-
-    setPedido(prev => ({
-      ...prev,
-      platillos: nuevosPlatillos
-    }));
-
-    setTotalPedido(calcularTotal(nuevosPlatillos));
-    setSelectedPlatillo("");
-  };
-
-  const eliminarPlatilloDelPedido = (index: number) => {
-    const nuevosPlatillos = pedido.platillos.filter((_, i) => i !== index);
-    setPedido(prev => ({
-      ...prev,
-      platillos: nuevosPlatillos
-    }));
-    setTotalPedido(calcularTotal(nuevosPlatillos));
-  };
-
-  const actualizarCantidad = (index: number, cantidad: string) => {
-    const nuevosPlatillos = [...pedido.platillos];
-    nuevosPlatillos[index].cantidad = parseInt(cantidad) || 1;
-    
-    setPedido(prev => ({
-      ...prev,
-      platillos: nuevosPlatillos
-    }));
-    
-    setTotalPedido(calcularTotal(nuevosPlatillos));
-  };
-
-  const validarPedido = () => {
-    if (
-      !pedido.Descripcion ||
-      !pedido.CodigoP ||
-      pedido.platillos.length === 0
-    ) {
-      Alert.alert("Error", "Por favor completa todos los campos y selecciona al menos un platillo.");
-      return false;
-    }
-    return true;
-  };
-
-  const enviarPedido = async () => {
-    if (!validarPedido()) return;
-
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        throw new Error("No se encontró token de autenticación");
-      }
-
-      const payload = {
-        ...pedido,
-        total: totalPedido
-      };
-
-      const response = await axios.post("http://192.168.0.35:9001/api/Pedidos", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      Alert.alert("Éxito", "Pedido creado correctamente");
-      // Resetear formulario
-      setPedido({
-        fecha: format(new Date(), "yyyy-MM-dd"),
-        hora: format(new Date(), "HH:mm"),
-        Descripcion: "",
-        CodigoP: "",
-        estado: "Activo",
-        platillos: [],
-        cliente: {
-          nombre: "Cliente Genérico",
-          identificacion: "0000000000",
-          direccion: "No especificada",
-          telefono: "No especificado",
-          email: "no@especificado.com"
-        }
-      });
-      setTotalPedido(0);
-    } catch (error) {
-      Alert.alert("Error", "No se pudo enviar el pedido");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatoPesos = (valor: number) => {
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-    }).format(valor);
-  };
-
-  if (loading && platillosDisponibles.length === 0) {
-    return (
-      <ImageBackground 
-        source={require('../../assets/pedido.png')} 
-        style={styles.background}
-      >
-        <View style={[styles.container, { justifyContent: "center" }]}>
-          <ActivityIndicator size="large" color="#FFD700" />
-        </View>
-      </ImageBackground>
-    );
-  }
-
-  if (error) {
-    return (
-      <ImageBackground 
-        source={require('../../assets/pedido.png')} 
-        style={styles.background}
-      >
-        <View style={styles.container}>
-          <Text style={[styles.title, { color: "red" }]}>{error}</Text>
-        </View>
-      </ImageBackground>
-    );
-  }
 
   return (
-    <ImageBackground 
-      source={require('../../assets/pedido.png')} 
-      style={styles.background}
-    >
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={toggleMenu}>
+          <Ionicons name="menu" size={28} color="#fff" />
+        </TouchableOpacity>
+        <Image source={require("../../assets/logoT.png")} style={styles.logo} />
+      </View>
+
+      {menuVisible && <Pressable style={styles.overlay} onPress={toggleMenu} />}
+
+      <View style={[styles.menu, { left: menuVisible ? 0 : -270 }]}>
+        <TouchableOpacity style={styles.closeButton} onPress={toggleMenu}>
+          <Ionicons name="close" size={26} color="#fff" />
+        </TouchableOpacity>
+
+        <Text style={styles.menuTitle}>Menú Principal</Text>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Pedidos")}>
+          <Ionicons name="clipboard" size={20} color="#fff" />
+          <Text style={styles.menuText}>Pedidos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Menu")}>
+          <Ionicons name="restaurant" size={20} color="#fff" />
+          <Text style={styles.menuText}>Menú del Día</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color="#fff" />
+          <Text style={styles.menuText}>Cerrar sesión</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.container}>
+        <View style={styles.formContainer}>
           <Text style={styles.title}>Realizar Pedido</Text>
-          
-          <View style={styles.rememberBox}>
-            <Text style={styles.rememberText}>Recuerda que todos tus pedidos quedan registrados</Text>
-          </View>
 
-          <TextInput
-            placeholder="Descripción del pedido"
-            placeholderTextColor="#555"
-            style={styles.input}
-            value={pedido.Descripcion}
-            onChangeText={(text) => setPedido({...pedido, Descripcion: text})}
-          />
+          <TextInput style={styles.input} placeholder="Nombre del platillo" />
+          <TextInput style={styles.input} placeholder="Cantidad" keyboardType="numeric" />
 
-          <TextInput
-            placeholder="Código del pedido"
-            placeholderTextColor="#555"
-            style={styles.input}
-            value={pedido.CodigoP}
-            onChangeText={(text) => setPedido({...pedido, CodigoP: text})}
-          />
-
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedPlatillo}
-              onValueChange={(itemValue) => setSelectedPlatillo(itemValue)}
-              style={styles.picker}
-              dropdownIconColor="#FFD700"
-            >
-              <Picker.Item label="Seleccionar platillo" value="" />
-              {platillosDisponibles.map((platillo) => (
-                <Picker.Item 
-                  key={platillo._id} 
-                  label={`${platillo.nombre} - ${formatoPesos(platillo.precio)}`} 
-                  value={platillo._id} 
-                />
-              ))}
-            </Picker>
-            <TouchableOpacity 
-              style={styles.addButton}
-              onPress={agregarPlatilloAPedido}
-              disabled={!selectedPlatillo}
-            >
-              <Text style={styles.addButtonText}>Agregar</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.addButton}>
+            <Text style={styles.addButtonText}>Agregar Platillo</Text>
+          </TouchableOpacity>
 
           <View style={styles.platillosContainer}>
-            {pedido.platillos.map((item, index) => {
-              const platillo = platillosDisponibles.find(p => p._id === item.platillo);
-              return (
-                <View key={index} style={styles.platilloItem}>
-                  <View style={styles.platilloInfo}>
-                    <Text style={styles.platilloName}>
-                      {platillo?.nombre || "Platillo no encontrado"}
-                    </Text>
-                    <TextInput
-                      style={styles.cantidadInput}
-                      keyboardType="numeric"
-                      value={item.cantidad.toString()}
-                      onChangeText={(text) => actualizarCantidad(index, text)}
-                    />
-                    <Text style={styles.platilloPrice}>
-                      {formatoPesos((platillo?.precio || 0) * item.cantidad)}
-                    </Text>
-                  </View>
-                  <TouchableOpacity 
-                    style={styles.deleteButton}
-                    onPress={() => eliminarPlatilloDelPedido(index)}
-                  >
-                    <Text style={styles.deleteButtonText}>Eliminar</Text>
-                  </TouchableOpacity>
-                </View>
-              );
-            })}
+            <View style={styles.platilloItem}>
+              <Text style={styles.platilloName}>Platillo 1</Text>
+              <TextInput style={styles.cantidadInput} defaultValue="1" />
+              <TouchableOpacity style={styles.removeButton}>
+                <Text style={styles.removeText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>Total: {formatoPesos(totalPedido)}</Text>
-          </View>
+          <Text style={styles.totalText}>Total: $</Text>
 
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={enviarPedido}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#000" />
-            ) : (
-              <Text style={styles.buttonText}>Enviar Pedido</Text>
-            )}
+          <TouchableOpacity style={styles.submitButton}>
+            <Text style={styles.submitButtonText}>Enviar Pedido</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </ImageBackground>
+    </View>
   );
 };
 
-// Tus estilos permanecen igual...
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
-    resizeMode: "cover",
+    backgroundColor: "#ecf0f1",
+    paddingTop: 35,
   },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  container: { 
-    flex: 1, 
-    padding: 20,
-    backgroundColor: 'rgba(0, 0, 50, 0.8)',
-  },
-  title: { 
-    fontSize: 30, 
-    fontWeight: "bold", 
-    marginBottom: 20,
-    textAlign: "center",
-    color: "#FFD700",
-    textTransform: "uppercase",
-  },
-  rememberBox: {
-    backgroundColor: "#FFD700",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: "#000",
-  },
-  rememberText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#000",
-    textTransform: "uppercase",
-  },
-  input: { 
-    width: "100%",
-    borderWidth: 2, 
-    padding: 15, 
-    marginVertical: 10, 
-    borderRadius: 10,
-    backgroundColor: "#FFF",
-    fontSize: 16,
-    color: "#000",
-  },
-  pickerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  picker: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    borderRadius: 10,
-    borderWidth: 2,
-    color: "#000",
-  },
-  addButton: {
-    backgroundColor: "#4CAF50",
-    padding: 15,
-    borderRadius: 10,
-    marginLeft: 10,
-  },
-  addButtonText: {
-    color: "#FFF",
-    fontWeight: "bold",
-  },
-  platillosContainer: {
-    marginVertical: 10,
-  },
-  platilloItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: "#0A1D56",
+    padding: 12,
+    marginBottom: 20,
   },
-  platilloInfo: {
+  logo: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    resizeMode: "cover",
+    marginLeft: "70%",
+    marginBottom: 5,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  menu: {
+    position: "absolute",
+    top: 35,
+    left: 0,
+    bottom: 0,
+    width: 270,
+    backgroundColor: "#0A1D56",
+    paddingTop: 60,
+    paddingLeft: 20,
+    paddingRight: 10,
+    zIndex: 1000,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+  },
+  menuTitle: {
+    fontSize: 24,
+    color: "#fff",
+    marginBottom: 40,
+  },
+  menuItem: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 20,
+  },
+  menuText: {
+    fontSize: 18,
+    color: "#fff",
+    marginLeft: 10,
+  },
+  scrollContainer: {
+    paddingBottom: 30,
+  },
+  formContainer: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     flex: 1,
   },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1A237E",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  input: {
+    height: 50,
+    borderColor: "#90CAF9",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 15,
+    marginBottom: 15,
+    backgroundColor: "#E3F2FD",
+  },
+  addButton: {
+    backgroundColor: "#1A237E",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  platillosContainer: {
+    marginTop: 20,
+  },
+  platilloItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+    gap: 10,
+  },
   platilloName: {
+    fontSize: 16,
+    color: "#34495E",
     flex: 1,
-    color: "#000",
-    fontWeight: "bold",
   },
   cantidadInput: {
     width: 50,
+    height: 40,
+    borderColor: "#90CAF9",
     borderWidth: 1,
-    borderColor: "#CCC",
-    borderRadius: 5,
-    padding: 5,
-    marginHorizontal: 10,
+    borderRadius: 8,
     textAlign: "center",
-    color: "#000",
-    backgroundColor: "#FFF",
+    backgroundColor: "#E3F2FD",
   },
-  platilloPrice: {
-    color: "#000",
-    fontWeight: "bold",
-    minWidth: 100,
-    textAlign: "right",
+  removeButton: {
+    backgroundColor: "#E53935",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 6,
   },
-  deleteButton: {
-    backgroundColor: "#F44336",
-    padding: 5,
-    borderRadius: 5,
-    marginLeft: 10,
-  },
-  deleteButtonText: {
-    color: "#FFF",
-  },
-  totalContainer: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "#FFD700",
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#000",
+  removeText: {
+    color: "#fff",
+    fontSize: 14,
   },
   totalText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#000",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1565C0",
+    textAlign: "right",
+    marginVertical: 20,
   },
-  button: {
-    backgroundColor: "#FFD700",
+  submitButton: {
+    backgroundColor: "#1A237E",
     paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    marginTop: 20,
-    width: "100%",
+    borderRadius: 8,
+    justifyContent: "center",
     alignItems: "center",
   },
-  buttonText: {
+  submitButtonText: {
+    color: "#fff",
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#000",
+    fontWeight: "700",
   },
 });
 
