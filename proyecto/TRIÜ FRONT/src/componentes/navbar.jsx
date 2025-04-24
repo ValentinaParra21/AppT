@@ -24,7 +24,7 @@ function Navbar() {
       { path: "/Pedidos", label: "Pedidos", roles: [ "Admin","Mesero" , "Root"] },
       { path: "/Usuario", label: "Usuarios", roles: ["Admin", "Root"] },
       { path: "/Productos", label: "Productos", roles: [ "Admin", "Root"] },
-      { path: "/Facturas", label: "Facturas", roles: [ "Admin", "Root"] },
+      { path: "/Facturas", label: "Facturas", roles: [ "Admin","Mesero", "Root"] },
     ];
 
     // Si el usuario está autenticado, solo mostrar las rutas privadas correspondientes

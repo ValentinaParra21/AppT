@@ -13,7 +13,7 @@ import {
 export const createPedido = [
   middleware(createPedidoSchema, "body"),
   async (req, res) => {
-    const { platillos, total, Descripcion, CodigoP, cliente } = req.body; // Añadido cliente
+    const { platillos, total, Descripcion, cliente } = req.body; // Añadido cliente
 
     try {
       // 1. Validar y descontar del inventario (manteniendo tu lógica actual)
@@ -51,7 +51,6 @@ export const createPedido = [
         hora: new Date().toLocaleTimeString(),
         total,
         Descripcion,
-        CodigoP,
         platillos,
       });
       await nuevoPedido.save();
@@ -118,7 +117,7 @@ export const getPedidoEs =[
         try {
          const pedido = await Pedidos.findById(id);
          if (!pedido) {
-            return ress.status(404).json({
+            return res.status(404).json({
                 message: "Pedido no encontrado"
             });
          }
@@ -137,7 +136,7 @@ export const updatePedido = [
     middleware(updatePedidoSchema, "body"),
     async (req, res) => {
       const { id } = req.params;
-      const { platillos, fecha, hora, total, Descripcion, CodigoP, estado } = req.body;
+      const { platillos, fecha, hora, total, Descripcion, estado } = req.body;
 
       try {
           // 1. Obtener el pedido actual
@@ -191,7 +190,7 @@ export const updatePedido = [
           // 4. Actualizar el pedido
           const pedidoUpdate = await Pedidos.updateOne(
               { _id: id },
-              { $set: { platillos, fecha, hora, total, Descripcion, CodigoP, estado } }
+              { $set: { platillos, fecha, hora, total, Descripcion, estado } }
           );
 
           if (pedidoUpdate.matchedCount === 0) {

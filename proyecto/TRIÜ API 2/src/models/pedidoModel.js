@@ -19,12 +19,6 @@ const PedidosSchema = mongoose.Schema({
         type: String,
         required: true
     },
-
-    CodigoP: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
     estado:{
         type: String,
         enum: ["Activo", "Inactivo"],

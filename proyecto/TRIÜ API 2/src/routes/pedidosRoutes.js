@@ -154,9 +154,6 @@ export default rounter;
  *         Descripcion:
  *           type: string
  *           description: Descripción del pedido
- *         CodigoP:
- *           type: integer
- *           description: Código único del pedido
  *         estado:
  *           type: string
  *           enum: ["Activo", "inactivo"]
@@ -167,5 +164,4 @@ export default rounter;
  *         - hora
  *         - total
  *         - Descripcion
- *         - CodigoP
  */

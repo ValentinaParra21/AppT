@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
 
     try {
-      const response = await fetch('http://192.168.20.23:9001/api/login', {
+      const response = await fetch('http://192.168.20.25:9001/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correo, password }),

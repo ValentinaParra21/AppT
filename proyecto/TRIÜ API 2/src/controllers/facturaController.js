@@ -5,6 +5,7 @@ import {
   updateFacturaSchema,
   getFacturaSchema,
   deleteFacturaSchema,
+  updateEstadoFacturaSchema,
 } from "../validators/facturaValidator.js";
 
 export const createFactura = [
@@ -101,6 +102,40 @@ export const deleteFactura = [
     } catch (error) {
       res.status(500).json({ 
         message: "Error al eliminar la factura",
+        error: error.message 
+      });
+    }
+  },
+];
+
+export const updateEstadoFactura = [
+  middleware(updateEstadoFacturaSchema, "body"),
+  async (req, res) => {
+    const { id } = req.params;
+    const { estadoPago } = req.body;
+
+    if (!estadoPago) {
+      return res.status(400).json({ message: "Falta el campo 'estadoPago'" });
+    }
+
+    try {
+      const factura = await Facturas.findByIdAndUpdate(
+        id,
+        { estadoPago },
+        { new: true }
+      );
+
+      if (!factura) {
+        return res.status(404).json({ message: "Factura no encontrada" });
+      }
+
+      res.status(200).json({ 
+        message: "Estado de factura actualizado correctamente",
+        factura
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        message: "Error al actualizar el estado de la factura",
         error: error.message 
       });
     }

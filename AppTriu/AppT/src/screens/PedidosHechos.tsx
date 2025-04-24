@@ -10,6 +10,7 @@ const pedidos = [
 
 const PedidosHechos = () => {
   return (
+    //HOlaa
     <View style={styles.container}>
       <Text style={styles.title}>Pedidos Hechos</Text>
       <FlatList

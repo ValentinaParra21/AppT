@@ -8,10 +8,11 @@ import Home from '../screens/Home';
 import Menu from '../screens/Menu';
 import Pedidos from '../screens/Pedidos';
 import PedidosHechos from '../screens/PedidosHechos';
-import FuertesScreen from '../screens/FuertesScreen';
-import QuesosScreen from '../screens/QuesosScreen';
-import VinosScreen from '../screens/VinosScreen';
+import BebidasScreen from '../screens/BebidasScreen';
 import SandwichesScreen from '../screens/SandwichesScreen';
+import ParaCompartirScreen from '../screens/ParaCompartirScreen';
+import SopaScreen from '../screens/SopasScreen';
+import EnsaladaScreen from '../screens/EnsaladaScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -19,10 +20,11 @@ export type RootStackParamList = {
   Menu: undefined;
   Pedidos: undefined;
   PedidosHechos: undefined;
-  Fuertes: undefined;
   Sandwiches: undefined;
-  Vinos: undefined;
-  Quesos: undefined;
+  Bebidas: undefined;
+  ParaCompartir: undefined;
+  Sopas: undefined;
+  Ensaladas: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,10 +51,11 @@ export const AppNavigator = () => {
           <Stack.Screen name="Menu" component={Menu} />
           <Stack.Screen name="Pedidos" component={Pedidos} />
           <Stack.Screen name="PedidosHechos" component={PedidosHechos} />
-          <Stack.Screen name="Fuertes" component={FuertesScreen} />
-          <Stack.Screen name="Quesos" component={QuesosScreen} />
-          <Stack.Screen name="Vinos" component={VinosScreen} />
+          <Stack.Screen name="Bebidas" component={BebidasScreen} />
           <Stack.Screen name="Sandwiches" component={SandwichesScreen} />
+          <Stack.Screen name="ParaCompartir" component={ParaCompartirScreen} />
+          <Stack.Screen name="Sopas" component={SopaScreen} />
+          <Stack.Screen name="Ensaladas" component={EnsaladaScreen} />
         </>
       ) : (
         <>

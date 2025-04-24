@@ -1,15 +1,16 @@
 POST http://localhost:9001/api/categorias
 Content-Type: application/json
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTNiNGMzYjdjYmQwNjdmZDcwNzE4ZCIsIm5vbWJyZSI6IlBlZHJvIiwiYXBlbGxpZG9zIjoiUGFyYWRhIiwicm9sZXMiOlsiQWRtaW4iXSwiaWF0IjoxNzQ1Mzg4MDM0LCJleHAiOjE3NDU0MzEyMzR9.o16U3JH8EiaF3YdiO7DaGqZBzIFRa_vPUDPp65ShouQ
 
 {
-    "nombre": "Sopas",
-    "descripcion": "Sopas de la casa"
+    "nombre": "Sandwiches",
+    "descripcion": "Deliciosos sandwiches de la casa"
 }
 
 ###
 GET http://localhost:9001/api/categorias
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTNiNGMzYjdjYmQwNjdmZDcwNzE4ZCIsIm5vbWJyZSI6IlBlZHJvIiwiYXBlbGxpZG9zIjoiUGFyYWRhIiwicm9sZXMiOlsiQWRtaW4iXSwiaWF0IjoxNzQ0MzkyMjU3LCJleHAiOjE3NDQ0MzU0NTd9.89mMka0_9Zox8JZXhxaw7SuaD_Qu-tbJgkZ8tk9pH3g
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTNiNGMzYjdjYmQwNjdmZDcwNzE4ZCIsIm5vbWJyZSI6IlBlZHJvIiwiYXBlbGxpZG9zIjoiUGFyYWRhIiwicm9sZXMiOlsiQWRtaW4iXSwiaWF0IjoxNzQ1Mzg4MDM0LCJleHAiOjE3NDU0MzEyMzR9.o16U3JH8EiaF3YdiO7DaGqZBzIFRa_vPUDPp65ShouQ
+
 ###
 GET http://localhost:9001/api/categorias/672ae9e380bcc4b66bcc10a8
 
@@ -23,4 +24,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:9001/api/categorias/000aa9c380bcc4b66bcc00a4 HTTP/1.1
+DELETE http://localhost:9001/api/categorias/672ae9d180bcc4b66bcc10a6 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NTNiNGMzYjdjYmQwNjdmZDcwNzE4ZCIsIm5vbWJyZSI6IlBlZHJvIiwiYXBlbGxpZG9zIjoiUGFyYWRhIiwicm9sZXMiOlsiQWRtaW4iXSwiaWF0IjoxNzQ1Mzg4MDM0LCJleHAiOjE3NDU0MzEyMzR9.o16U3JH8EiaF3YdiO7DaGqZBzIFRa_vPUDPp65ShouQ

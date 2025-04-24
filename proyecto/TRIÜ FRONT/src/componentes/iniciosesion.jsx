@@ -67,7 +67,7 @@ const Login = () => {
   return (
     <div
       style={{
-        backgroundImage: 'url("https://scontent.fbog5-1.fna.fbcdn.net/v/t1.6435-9/202773732_310855684035424_1713396733998623976_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=3a1ebe&_nc_eui2=AeF0ixtlPJYkefm6QPCVpthMfNjQfwM8Aq182NB_AzwCrYyQn49wVOAQz0JSmgof0-J8aT-UixYr9zg9jT7Ln8OE&_nc_ohc=WSNhSlzI4eUQ7kNvgFXSMoc&_nc_zt=23&_nc_ht=scontent.fbog5-1.fna&_nc_gid=AP8Ziw9j5GS-wrPGJqyu04S&oh=00_AYD1sNsR7xnbHY64ihROnXBdmtcVvn5-Z1dX8F62Jf6BOg&oe=677D9300")', // Cambia esta URL por tu imagen de fondo.
+    backgroundImage: `url(../../src/assets/FondoInicio.jpeg)`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
@@ -94,7 +94,8 @@ const Login = () => {
             <img
               src="../../logo.ico"
               alt="Logo"
-              style={{ maxWidth: "140px" }}
+              style={{ maxWidth: "140px" , borderRadius:"100px"}}
+
             />
           </Box>
           <Typography variant="h4" align="center" gutterBottom style={{ color: "#ffa726" }}>
@@ -149,7 +150,7 @@ const Login = () => {
             </Button>
           </Box>
           <Box marginTop={2} textAlign="center">
-            <Link href="/login" color="secondary" underline="hover" style={{ color: "#ffa726" }}>
+            <Link href="/Homepage" color="secondary" underline="hover" style={{ color: "#ffa726" }}>
               Volver
             </Link>
           </Box>

@@ -30,13 +30,22 @@ export const createPlatillo = [
     },
 ];
 
-export const getPlatillo = (req, res) => {
-    platilloSchema
-        .find()
-        .populate('categoria')
-        .populate('ingredientes.producto') // Poblar los ingredientes
-        .then((data) => res.status(200).json({ data }))
-        .catch((error) => res.status(500).json({ message: error }));
+// ✅ FUNCIÓN ACTUALIZADA PARA FILTRAR POR CATEGORÍA
+export const getPlatillo = async (req, res) => {
+    try {
+        const { categoria } = req.query;
+
+        const filtro = categoria ? { categoria } : {};
+
+        const data = await platilloSchema
+            .find(filtro)
+            .populate('categoria')
+            .populate('ingredientes.producto'); // Poblar los ingredientes
+
+        res.status(200).json({ data });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 export const getPlatilloById = [

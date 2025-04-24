@@ -24,3 +24,8 @@ export const updateFacturaSchema = Joi.object({
 export const deleteFacturaSchema = Joi.object({
     id: Joi.string().required()
 });
+
+export const updateEstadoFacturaSchema = Joi.object({
+    estadoPago: Joi.string().valid("Pendiente", "Pagado", "Cancelado").required()
+  }).unknown(true);
+  

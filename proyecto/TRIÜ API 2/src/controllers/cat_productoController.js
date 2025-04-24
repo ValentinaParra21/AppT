@@ -79,7 +79,7 @@ export const updateCat_Producto = [
     async (req, res) => {
       const { id } = req.params;
       try {
-        const result = cat_productoSchema.deleteOne({ _id: id });
+        const result = await cat_productoSchema.deleteOne({ _id: id });
         if (result.deletedCount === 0) {
           res.status(404).json({ message: "Producto no encontrado" });
         }

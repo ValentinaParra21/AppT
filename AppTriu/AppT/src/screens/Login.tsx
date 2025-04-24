@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -66,7 +68,6 @@ const Login = () => {
           text1: 'Inicio de sesión exitoso',
         });
       } else {
-        // Evita que se quede en blanco si el login falla sin error explícito
         toast.show({
           type: 'error',
           text1: 'Error',
@@ -90,38 +91,52 @@ const Login = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={styles.container}
     >
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Bienvenido de nuevo</Text>
+      <ScrollView contentContainerStyle={styles.scroll}>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Correo electrónico"
-          value={correo}
-          onChangeText={setCorreo}
-          keyboardType="email-address"
-          autoCapitalize="none"
+        <Image
+          source={require('../../assets/Fondoinicio.png')}
+          style={styles.headerImage}
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logoCircle}>
+            <Text style={styles.logoText}>TRIÜ</Text>
+          </View>
+        </View>
 
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={handleLogin}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.formContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Correo electrónico"
+            value={correo}
+            onChangeText={setCorreo}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
@@ -129,38 +144,76 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
+  },
+  scroll: {
+    flexGrow: 1,
+  },
+  headerImage: {
+    width: '100%',
+    height: 450,
+    resizeMode: 'cover',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginTop: -55,
+    zIndex: 10,
+  },
+  logoCircle: {
+    backgroundColor: '#FFCC00',
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  logoText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#000',
   },
   formContainer: {
     flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
+    backgroundColor: '#f8f8f8',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 25,
+    marginTop: -50,
+   
   },
   input: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
+    marginTop: 50,
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     fontSize: 16,
+    marginBottom: -20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    color: '#333',
   },
   loginButton: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#FFCC00',
+    paddingVertical: 15,
+    borderRadius: 30,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 40,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   loginButtonText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#000',
     fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

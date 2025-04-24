@@ -7,7 +7,6 @@ Content-Type: application/json
     "hora": "10pm",
     "total": "190010",
     "Descripcion": "Solicitaron un pasta carbonara y bebidas al beer",
-    "CodigoP": "06",
     "estado": "Inactivo"
 }
 
@@ -26,7 +25,6 @@ Content-Type: application/json
   "hora": "10pm",
   "total": 190000,
   "Descripcion": "Solicitaron un pasta carbonara y bebidas al beer",
-  "CodigoP": 2,
   "estado": "Activo"
 }
 ####

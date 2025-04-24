@@ -171,13 +171,15 @@ function PedidoLista() {
 
   return (
     <div
-      className="container-fluid py-5 d-flex flex-column justify-content-between"
+    className="container-fluid vh-100"
       style={{
-        minHeight: "100vh", width: "100vw", padding: "0",
-        backgroundColor: "#343a40",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+        width: "100vw", 
+        padding: "0", 
+        backgroundColor: "#343a40", 
+        backgroundSize: "cover", 
+        backgroundPosition: "center", 
+        backgroundRepeat: "no-repeat"
       }}
     >
       <div className="row g-3 mb-4" style={{ margin: "0" }}>
@@ -252,7 +254,7 @@ function PedidoLista() {
                       <td>
                         {productos.cat_producto?.nombre || "Sin categoria"}
                       </td>
-                      <td>
+                      <td class="d-flex gap-3">
                         <button
                           className="btn btn-warning btn-sm"
                           onClick={() => abrirModalEditar(productos)}

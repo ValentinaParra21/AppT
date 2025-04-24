@@ -39,15 +39,6 @@ const descripcionSchema = Joi.string()
         "string.max": "Máximo 500 caracteres"
     });
 
-const codigoSchema = Joi.string()
-    .alphanum()
-    .min(3)
-    .max(20)
-    .messages({
-        "string.alphanum": "Solo caracteres alfanuméricos",
-        "string.min": "Mínimo 3 caracteres",
-        "string.max": "Máximo 20 caracteres"
-    });
 
 const estadoSchema = Joi.string()
     .valid("Activo", "Inactivo")
@@ -120,7 +111,6 @@ export const createPedidoSchema = Joi.object({
     hora: horaSchema.required(),
     total: monedaSchema.required(),
     Descripcion: descripcionSchema.required(),
-    CodigoP: codigoSchema.required(),
     estado: estadoSchema.required(),
     platillos: platillosSchema,
     cliente: clienteSchema.required()
@@ -131,7 +121,6 @@ export const updatePedidoSchema = Joi.object({
     hora: horaSchema.optional(),
     total: monedaSchema.optional(),
     Descripcion: descripcionSchema.optional(),
-    CodigoP: codigoSchema.optional(),
     estado: estadoSchema.optional(),
     platillos: platillosSchema.optional(),
     cliente: clienteSchema.optional()

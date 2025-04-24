@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Button, Modal, Form, Alert, Spinner, Badge } from "react-bootstrap";
+import { Table, Button, Modal, Form, Alert, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaFileInvoice, FaEye } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -15,6 +15,21 @@ function PedidosLista() {
     const [error, setError] = useState(null);
     const [facturaGenerada, setFacturaGenerada] = useState(null);
 
+    // PAGINACIÓN
+    const [paginaActual, setPaginaActual] = useState(1);
+    const pedidosPorPagina = 6;
+    const totalPaginas = Math.ceil(listaPedido.length / pedidosPorPagina);
+    const pedidosMostrados = listaPedido
+        .filter((p) => p && p.estado)
+        .slice(
+            (paginaActual - 1) * pedidosPorPagina,
+            paginaActual * pedidosPorPagina
+        );
+    const cambiarPagina = (numero) => {
+        setPaginaActual(numero);
+    };
+
+    // Configuracion para el uso de formato de moneda COP
     const formatoPesos = (valor) => {
         return new Intl.NumberFormat("es-CO", {
             style: "currency",
@@ -27,30 +42,33 @@ function PedidosLista() {
         0
     );
 
-    useEffect(() => {
-        const consultarDatos = async () => {
-            try {
-                const [pedidosResponse, platillosResponse] = await Promise.all([
-                    axios.get("http://localhost:9001/api/Pedidos", {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    }),
-                    axios.get("http://localhost:9001/api/platillos", {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    })
-                ]);
+    const consultarDatos = async () => {
+        try {
+            setLoading(true);
+            const [pedidosResponse, platillosResponse] = await Promise.all([
+                axios.get("http://localhost:9001/api/Pedidos", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }),
+                axios.get("http://localhost:9001/api/platillos", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                })
+            ]);
 
-                setlistaPedido(pedidosResponse.data);
-                setPlatillosDisponibles(platillosResponse.data.data || []);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+            setlistaPedido(pedidosResponse.data);
+            setPlatillosDisponibles(platillosResponse.data.data || []);
+            setError(null);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         consultarDatos();
     }, []);
 
@@ -95,7 +113,7 @@ function PedidosLista() {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
-                setlistaPedido(prev => prev.filter(pedido => pedido._id !== id));
+                await consultarDatos();
             } catch (error) {
                 setError("Error al eliminar pedido");
             }
@@ -103,33 +121,69 @@ function PedidosLista() {
     };
 
     const abrirModalEditar = (pedido = null) => {
-        setPedidoEdit(pedido || { 
-            fecha: new Date().toISOString().split('T')[0], 
-            hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        setPedidoEdit(pedido || {
+            fecha: new Date().toISOString().split('T')[0],
+            hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             total: 0,
             Descripcion: "",
-            CodigoP: "",
             estado: "Activo",
-            platillos: [] 
+            platillos: [],
+            cliente: {
+                nombre: "",
+                identificacion: "",
+                direcFcion: "",
+                telefono: "",
+                email: ""
+            }
         });
+
         setTotalPedido(pedido?.total || 0);
         setShowModal(true);
     };
 
     const generarFactura = async (pedidoId) => {
         try {
+            setLoading(true);
+            setError(null);
+
             const response = await axios.post(
-                `http://localhost:9001/api/Pedidos/${pedidoId}/factura`,
+                `http://localhost:9001/api/pedidos/${pedidoId}/factura`,
                 {},
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
+                    }
                 }
             );
+
             setFacturaGenerada(response.data.factura);
+
+            if (window.confirm(`¿Desea enviar la factura al correo ${response.data.factura.cliente.email}?`)) {
+                await enviarFacturaPorEmail(pedidoId);
+            }
+
         } catch (error) {
-            setError("Error al generar factura");
+            console.error("Error completo:", error.response?.data || error.message);
+            setError(error.response?.data?.error || "Error al generar factura");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const enviarFacturaPorEmail = async (pedidoId) => {
+        try {
+            await axios.post(
+                `http://localhost:9001/api/pedidos/${pedidoId}/factura/enviar-email`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    }
+                }
+            );
+            alert("Factura enviada por correo exitosamente");
+        } catch (error) {
+            setError("Error al enviar email: " + (error.response?.data?.error || error.message));
         }
     };
 
@@ -243,78 +297,70 @@ function PedidosLista() {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-              throw new Error("No se encontró token de autenticación");
+                throw new Error("No se encontró token de autenticación");
             }
-          
-            const url = pedidoEdit._id 
-              ? `http://localhost:9001/api/Pedidos/${pedidoEdit._id}`
-              : "http://localhost:9001/api/Pedidos";
-          
+
+            const url = pedidoEdit._id
+                ? `http://localhost:9001/api/Pedidos/${pedidoEdit._id}`
+                : "http://localhost:9001/api/Pedidos";
+
             const method = pedidoEdit._id ? "put" : "post";
-          
+
             const payload = {
-              ...pedidoEdit,
-              total: totalPedido,
-              cliente: {
-                nombre: pedidoEdit.cliente?.nombre || "Cliente Generico",
-                identificacion: pedidoEdit.cliente?.identificacion || "0000000000",
-                direccion: pedidoEdit.cliente?.direccion || "No especificada",
-                telefono: pedidoEdit.cliente?.telefono || "No especificado",
-                email: pedidoEdit.cliente?.email || "no@especificado.com"
-              },
-              fecha: pedidoEdit.fecha || new Date().toISOString().split('T')[0],
-              hora: pedidoEdit.hora || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-              estado: pedidoEdit.estado || "Activo"
+                ...pedidoEdit,
+                total: totalPedido,
+                cliente: {
+                    nombre: pedidoEdit.cliente?.nombre || "Cliente Generico",
+                    identificacion: pedidoEdit.cliente?.identificacion || "0000000000",
+                    direccion: pedidoEdit.cliente?.direccion || "No especificada",
+                    telefono: pedidoEdit.cliente?.telefono || "No especificado",
+                    email: pedidoEdit.cliente?.email || "no@especificado.com"
+                },
+                fecha: pedidoEdit.fecha || new Date().toISOString().split('T')[0],
+                hora: pedidoEdit.hora || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                estado: pedidoEdit.estado || "Activo"
             };
-          
+
             const config = {
-              headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-              },
-              timeout: 10000
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                timeout: 10000
             };
-          
+
             const response = await axios[method](url, payload, config);
-          
+
             if (!response.data) {
-              throw new Error("No se recibieron datos en la respuesta");
+                throw new Error("No se recibieron datos en la respuesta");
             }
-          
-            setlistaPedido(prev => 
-              pedidoEdit._id 
-                ? prev.map(p => p._id === pedidoEdit._id ? response.data : p)
-                : [...prev, response.data]
-            );
-          
-            if (!pedidoEdit._id) {
-              await generarFactura(response.data._id);
-            }
-          
+
+            await consultarDatos();
+
             alert(`Pedido ${pedidoEdit._id ? "actualizado" : "creado"} correctamente`);
             cerrarModal();
-          
-          } catch (error) {
+
+        } catch (error) {
             let errorMessage = "Error al procesar el pedido";
-            
+
             if (error.response) {
-              errorMessage = error.response.data?.message || 
-                           `Error ${error.response.status}: ${error.response.statusText}`;
+                errorMessage = error.response.data?.message ||
+                    `Error ${error.response.status}: ${error.response.statusText}`;
             } else if (error.request) {
-              errorMessage = "No se recibió respuesta del servidor";
+                errorMessage = "No se recibió respuesta del servidor";
             } else {
-              errorMessage = error.message;
+                errorMessage = error.message;
             }
-          
+
             console.error("Error detallado:", {
-              error: error.message,
-              config: error.config,
-              response: error.response?.data
+                error: error.message,
+                config: error.config,
+                response: error.response?.data
             });
-          
+
             setError(errorMessage);
             alert(errorMessage);
-          }
+        }
     };
 
     const validarPedido = () => {
@@ -322,7 +368,6 @@ function PedidosLista() {
             !pedidoEdit.fecha ||
             !pedidoEdit.hora ||
             !pedidoEdit.Descripcion ||
-            !pedidoEdit.CodigoP ||
             !pedidoEdit.estado ||
             !pedidoEdit.platillos?.length
         ) {
@@ -340,16 +385,13 @@ function PedidosLista() {
     };
 
     const getEstadoBadge = (estado) => {
-        return estado === "Activo" 
+        return estado === "Activo"
             ? <Badge bg="success">Activo</Badge>
             : <Badge bg="secondary">Inactivo</Badge>;
     };
 
-    if (loading) return (
-        <div className="d-flex justify-content-center mt-5">
-            <Spinner animation="border" variant="primary" />
-        </div>
-    );
+    if (!listaPedido) return
+
 
     if (error) return <Alert variant="danger">{error}</Alert>;
 
@@ -406,19 +448,17 @@ function PedidosLista() {
                                     <th>Hora</th>
                                     <th>Total</th>
                                     <th>Descripción</th>
-                                    <th>Código</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {listaPedido.map((pedido) => (
+                                {pedidosMostrados.map((pedido) => (
                                     <tr key={pedido._id}>
                                         <td>{new Date(pedido.fecha).toLocaleDateString("es-ES")}</td>
                                         <td>{pedido.hora}</td>
                                         <td>{formatoPesos(pedido.total)}</td>
                                         <td>{pedido.Descripcion}</td>
-                                        <td>{pedido.CodigoP}</td>
                                         <td>{getEstadoBadge(pedido.estado)}</td>
                                         <td>
                                             <div className="d-flex gap-2">
@@ -428,20 +468,37 @@ function PedidosLista() {
                                                 <Button variant="danger" size="sm" onClick={() => eliminarPedido(pedido._id)}>
                                                     <FaTrash />
                                                 </Button>
-                                                <Button 
-                                                    variant="success" 
+
+                                                {/* Este boton es para generar la factura pero esta cambiado  */}
+                                                {/* <Button
+                                                    variant="success"
                                                     size="sm"
                                                     onClick={() => generarFactura(pedido._id)}
                                                     disabled={pedido.estado === "Inactivo"}
                                                 >
                                                     <FaFileInvoice />
-                                                </Button>
+                                                </Button> */}
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </Table>
+
+                        {/* Paginación visual */}
+                        <div className="d-flex justify-content-center mt-3">
+                            <nav>
+                                <ul className="pagination">
+                                    {[...Array(totalPaginas).keys()].map((num) => (
+                                        <li key={num} className={`page-item ${paginaActual === num + 1 ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => cambiarPagina(num + 1)}>
+                                                {num + 1}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -455,62 +512,111 @@ function PedidosLista() {
                     <Form>
                         <Form.Group className="mb-3">
                             <Form.Label>Fecha</Form.Label>
-                            <Form.Control 
-                                type="date" 
-                                name="fecha" 
-                                value={pedidoEdit?.fecha || ""} 
-                                onChange={(e) => setPedidoEdit({...pedidoEdit, fecha: e.target.value})} 
+                            <Form.Control
+                                type="date"
+                                name="fecha"
+                                value={pedidoEdit?.fecha || ""}
+                                onChange={(e) => setPedidoEdit({ ...pedidoEdit, fecha: e.target.value })}
                             />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Hora</Form.Label>
-                            <Form.Control 
-                                type="time" 
-                                name="hora" 
-                                value={pedidoEdit?.hora || ""} 
-                                onChange={(e) => setPedidoEdit({...pedidoEdit, hora: e.target.value})} 
+                            <Form.Control
+                                type="time"
+                                name="hora"
+                                value={pedidoEdit?.hora || ""}
+                                onChange={(e) => setPedidoEdit({ ...pedidoEdit, hora: e.target.value })}
                             />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Descripción</Form.Label>
-                            <Form.Control 
-                                as="textarea" 
-                                name="Descripcion" 
-                                value={pedidoEdit?.Descripcion || ""} 
-                                onChange={(e) => setPedidoEdit({...pedidoEdit, Descripcion: e.target.value})} 
+                            <Form.Control
+                                as="textarea"
+                                name="Descripcion"
+                                value={pedidoEdit?.Descripcion || ""}
+                                onChange={(e) => setPedidoEdit({ ...pedidoEdit, Descripcion: e.target.value })}
                             />
                         </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Código del Pedido</Form.Label>
-                            <Form.Control 
-                                type="text" 
-                                name="CodigoP" 
-                                value={pedidoEdit?.CodigoP || ""} 
-                                onChange={(e) => setPedidoEdit({...pedidoEdit, CodigoP: e.target.value})} 
-                            />
-                        </Form.Group>
-
                         <Form.Group className="mb-3">
                             <Form.Label>Estado</Form.Label>
-                            <Form.Select 
-                                name="estado" 
-                                value={pedidoEdit?.estado || ""} 
-                                onChange={(e) => setPedidoEdit({...pedidoEdit, estado: e.target.value})}
+                            <Form.Select
+                                name="estado"
+                                value={pedidoEdit?.estado || ""}
+                                onChange={(e) => setPedidoEdit({ ...pedidoEdit, estado: e.target.value })}
                             >
                                 <option value="Activo">Activo</option>
                                 <option value="Inactivo">Inactivo</option>
                             </Form.Select>
                         </Form.Group>
+                        {/* Parte del cliente del pedido */}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Nombre del Cliente</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={pedidoEdit?.cliente?.nombre || ""}
+                                onChange={(e) => setPedidoEdit({
+                                    ...pedidoEdit,
+                                    cliente: { ...pedidoEdit.cliente, nombre: e.target.value }
+                                })}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Identificación</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={pedidoEdit?.cliente?.identificacion || ""}
+                                onChange={(e) => setPedidoEdit({
+                                    ...pedidoEdit,
+                                    cliente: { ...pedidoEdit.cliente, identificacion: e.target.value }
+                                })}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Dirección</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={pedidoEdit?.cliente?.direccion || ""}
+                                onChange={(e) => setPedidoEdit({
+                                    ...pedidoEdit,
+                                    cliente: { ...pedidoEdit.cliente, direccion: e.target.value }
+                                })}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Teléfono</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={pedidoEdit?.cliente?.telefono || ""}
+                                onChange={(e) => setPedidoEdit({
+                                    ...pedidoEdit,
+                                    cliente: { ...pedidoEdit.cliente, telefono: e.target.value }
+                                })}
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control
+                                type="email"
+                                value={pedidoEdit?.cliente?.email || ""}
+                                onChange={(e) => setPedidoEdit({
+                                    ...pedidoEdit,
+                                    cliente: { ...pedidoEdit.cliente, email: e.target.value }
+                                })}
+                            />
+                        </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Total</Form.Label>
-                            <Form.Control 
-                                type="text" 
-                                value={formatoPesos(totalPedido)} 
-                                readOnly 
+                            <Form.Control
+                                type="text"
+                                value={formatoPesos(totalPedido)}
+                                readOnly
                             />
                         </Form.Group>
 
@@ -546,13 +652,13 @@ function PedidosLista() {
                                 return (
                                     <div key={index} className="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
                                         <div>
-                                            <strong>{platillo?.nombre || "Platillo no encontrado"}</strong> - 
-                                            Cantidad: {item.cantidad} - 
+                                            <strong>{platillo?.nombre || "Platillo no encontrado"}</strong> -
+                                            Cantidad: {item.cantidad} -
                                             Subtotal: {formatoPesos((platillo?.precio || 0) * item.cantidad)}
                                         </div>
-                                        <Button 
-                                            variant="outline-danger" 
-                                            size="sm" 
+                                        <Button
+                                            variant="outline-danger"
+                                            size="sm"
                                             onClick={() => eliminarPlatilloDelPedido(index)}
                                         >
                                             Eliminar
@@ -647,8 +753,8 @@ function PedidosLista() {
                     <Button variant="secondary" onClick={() => setFacturaGenerada(null)}>
                         Cerrar
                     </Button>
-                    <Button 
-                        variant="primary" 
+                    <Button
+                        variant="primary"
                         onClick={handleImprimirFactura}
                         className="me-2"
                     >

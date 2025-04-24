@@ -78,7 +78,7 @@ export const createCategoria = [
     async (req, res) => {
       const { id } = req.params;
       try {
-        const result = Categoria.deleteOne({ _id: id });
+        const result = await Categoria.deleteOne({ _id: id });
         if (result.deletedCount === 0) {
           res.status(404).json({ message: "Categoria no encontrada" });
         }

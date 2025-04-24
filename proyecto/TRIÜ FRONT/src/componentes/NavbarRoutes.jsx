@@ -1,7 +1,7 @@
 // NavbarRoutes.jsx
 // eslint-disable-next-line no-unused-vars
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from '../componentes/ProtectedRoute.jsx';
 import HomePage from '../pages/HomePage';
 import Platillos from '../pages/Platillos';
@@ -17,14 +17,15 @@ const NavbarRoutes = () => {
         <div>
             <Navbar />
             <Routes>
-             
+                <Route path="/" element={<Navigate to="/HomePage" />} />
+
                 <Route path="/HomePage" element={<HomePage />} />
                 {/* Aquí envuelves los componentes con ProtectedRoute */}
-                <Route path="/Platillos" element={<ProtectedRoute allowedRoles={['Admin','Mesero', 'Root']}><Platillos /></ProtectedRoute>} />
-                <Route path="/Pedidos" element={<ProtectedRoute allowedRoles={['Mesero','Admin', 'Root']}><Pedidos /></ProtectedRoute>} />
+                <Route path="/Platillos" element={<ProtectedRoute allowedRoles={['Admin', 'Mesero', 'Root']}><Platillos /></ProtectedRoute>} />
+                <Route path="/Pedidos" element={<ProtectedRoute allowedRoles={['Mesero', 'Admin', 'Root']}><Pedidos /></ProtectedRoute>} />
                 <Route path="/Usuario" element={<ProtectedRoute allowedRoles={['Admin', 'Root']}><Usuario /></ProtectedRoute>} />
                 <Route path="/Productos" element={<ProtectedRoute allowedRoles={['Admin', 'Root']}><Productos /></ProtectedRoute>} />
-                <Route path="/Facturas" element={<ProtectedRoute allowedRoles={['Admin', 'Root']}><Facturas /></ProtectedRoute>} />
+                <Route path="/Facturas" element={<ProtectedRoute allowedRoles={['Admin','Mesero', 'Root']}><Facturas /></ProtectedRoute>} />
                 <Route path="/Sesion" element={<Sesion />} />
             </Routes>
         </div>

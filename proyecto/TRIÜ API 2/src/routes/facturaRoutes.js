@@ -1,5 +1,5 @@
 import express from "express";
-import { createFactura, getFactura, getFacturasEs, updateFactura, deleteFactura } from "../controllers/facturaController.js";
+import { createFactura, getFactura, getFacturasEs, updateFactura, deleteFactura,updateEstadoFactura } from "../controllers/facturaController.js";
 import { verifyJWT, verifyRole } from "../middleware/authMiddleware.js";
 const Frouter = express.Router()
 
@@ -229,5 +229,41 @@ Frouter.put("/:id", verifyJWT, verifyRole(['Admin', 'Root']), updateFactura);
  *         description: Factura no encontrada
  */
 Frouter.delete("/:id", verifyJWT, verifyRole(['Admin', 'Root']), deleteFactura);
+
+/**
+ * @swagger
+ * /facturas/{id}/estado:
+ *   patch:
+ *     summary: Actualizar el estado de pago de una factura
+ *     description: Permite modificar únicamente el estado de pago de una factura existente.
+ *     tags:
+ *       - Facturas
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID de la factura
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               estadoPago:
+ *                 type: string
+ *                 enum: [Pendiente, Pagado, Cancelado]
+ *                 example: "Pagado"
+ *     responses:
+ *       200:
+ *         description: Estado de la factura actualizado correctamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Factura no encontrada
+ */
+Frouter.patch("/:id/estado",verifyJWT, verifyRole(['Admin', 'Root']),updateEstadoFactura);
 
 export default Frouter;

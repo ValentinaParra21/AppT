@@ -2,7 +2,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://192.168.20.23:9001/api/login'; // Ajusta tu IP y puerto
+const API_URL = 'http://192.168.20.25:9001/api/login'; // Ajusta tu IP y puerto
 
 export interface User {
   id: string;

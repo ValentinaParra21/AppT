@@ -207,7 +207,18 @@ function PlatilloLista() {
   };
 
   return (
-    <div className="container-fluid py-5 d-flex flex-column justify-content-between" style={{ minHeight: "100vh", width: "100vw", padding: "0", backgroundColor: "#343a40", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}>
+    <div 
+    className="container-fluid vh-100"
+    style={{
+      minHeight: "100vh",
+      width: "100vw", 
+      padding: "0", 
+      backgroundColor: "#343a40", 
+      backgroundSize: "cover", 
+      backgroundPosition: "center", 
+      backgroundRepeat: "no-repeat"
+    }}
+    >
       <div className="row g-3 mb-4" style={{ margin: "0" }}>
         <div className="col-md-4">
           <div className="card shadow-sm text-center">
